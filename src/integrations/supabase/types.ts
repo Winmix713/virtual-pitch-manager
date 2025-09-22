@@ -47,42 +47,6 @@ export type Database = {
         }
         Relationships: []
       }
-      example_users: {
-        Row: {
-          created_at: string | null
-          id: number
-          session_user_name: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: never
-          session_user_name?: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: never
-          session_user_name?: string
-        }
-        Relationships: []
-      }
-      example_users_quoted: {
-        Row: {
-          created_at: string | null
-          id: number
-          session_user: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: never
-          session_user?: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: never
-          session_user?: string
-        }
-        Relationships: []
-      }
       feature_calculation_config: {
         Row: {
           config_group: string
@@ -192,129 +156,6 @@ export type Database = {
         Relationships: []
       }
       matches: {
-        Row: {
-          attendance: number | null
-          away_corners: number | null
-          away_red_cards: number | null
-          away_shots: number | null
-          away_shots_on_target: number | null
-          away_team: string
-          away_team_id: number | null
-          away_yellow_cards: number | null
-          btts_computed: boolean | null
-          comeback_computed: boolean | null
-          created_at: string
-          created_by: string | null
-          extra_stats: Json | null
-          full_time_away_goals: number
-          full_time_home_goals: number
-          goal_difference_computed: number | null
-          half_time_away_goals: number | null
-          half_time_home_goals: number | null
-          home_corners: number | null
-          home_red_cards: number | null
-          home_shots: number | null
-          home_shots_on_target: number | null
-          home_team: string
-          home_team_id: number | null
-          home_yellow_cards: number | null
-          id: number
-          is_recent: boolean
-          league: string
-          league_id: number | null
-          match_at: string
-          match_status: Database["public"]["Enums"]["match_status_enum"] | null
-          referee: string | null
-          result_computed: string | null
-          season: string | null
-          total_goals_computed: number | null
-          updated_at: string
-          updated_by: string | null
-          venue: string | null
-        }
-        Insert: {
-          attendance?: number | null
-          away_corners?: number | null
-          away_red_cards?: number | null
-          away_shots?: number | null
-          away_shots_on_target?: number | null
-          away_team: string
-          away_team_id?: number | null
-          away_yellow_cards?: number | null
-          btts_computed?: boolean | null
-          comeback_computed?: boolean | null
-          created_at?: string
-          created_by?: string | null
-          extra_stats?: Json | null
-          full_time_away_goals?: number
-          full_time_home_goals?: number
-          goal_difference_computed?: number | null
-          half_time_away_goals?: number | null
-          half_time_home_goals?: number | null
-          home_corners?: number | null
-          home_red_cards?: number | null
-          home_shots?: number | null
-          home_shots_on_target?: number | null
-          home_team: string
-          home_team_id?: number | null
-          home_yellow_cards?: number | null
-          id?: never
-          is_recent?: boolean
-          league?: string
-          league_id?: number | null
-          match_at: string
-          match_status?: Database["public"]["Enums"]["match_status_enum"] | null
-          referee?: string | null
-          result_computed?: string | null
-          season?: string | null
-          total_goals_computed?: number | null
-          updated_at?: string
-          updated_by?: string | null
-          venue?: string | null
-        }
-        Update: {
-          attendance?: number | null
-          away_corners?: number | null
-          away_red_cards?: number | null
-          away_shots?: number | null
-          away_shots_on_target?: number | null
-          away_team?: string
-          away_team_id?: number | null
-          away_yellow_cards?: number | null
-          btts_computed?: boolean | null
-          comeback_computed?: boolean | null
-          created_at?: string
-          created_by?: string | null
-          extra_stats?: Json | null
-          full_time_away_goals?: number
-          full_time_home_goals?: number
-          goal_difference_computed?: number | null
-          half_time_away_goals?: number | null
-          half_time_home_goals?: number | null
-          home_corners?: number | null
-          home_red_cards?: number | null
-          home_shots?: number | null
-          home_shots_on_target?: number | null
-          home_team?: string
-          home_team_id?: number | null
-          home_yellow_cards?: number | null
-          id?: never
-          is_recent?: boolean
-          league?: string
-          league_id?: number | null
-          match_at?: string
-          match_status?: Database["public"]["Enums"]["match_status_enum"] | null
-          referee?: string | null
-          result_computed?: string | null
-          season?: string | null
-          total_goals_computed?: number | null
-          updated_at?: string
-          updated_by?: string | null
-          venue?: string | null
-        }
-        Relationships: []
-      }
-      matchesid: {
         Row: {
           attendance: number | null
           away_corners: number | null
@@ -888,57 +729,6 @@ export type Database = {
         }
         Relationships: []
       }
-      matches_summary: {
-        Row: {
-          attendance: number | null
-          away_team: string | null
-          btts_computed: boolean | null
-          comeback_computed: boolean | null
-          full_time_away_goals: number | null
-          full_time_home_goals: number | null
-          home_team: string | null
-          id: number | null
-          league: string | null
-          match_at: string | null
-          match_status: Database["public"]["Enums"]["match_status_enum"] | null
-          result_computed: string | null
-          season: string | null
-          total_goals_computed: number | null
-        }
-        Insert: {
-          attendance?: number | null
-          away_team?: string | null
-          btts_computed?: boolean | null
-          comeback_computed?: boolean | null
-          full_time_away_goals?: number | null
-          full_time_home_goals?: number | null
-          home_team?: string | null
-          id?: number | null
-          league?: string | null
-          match_at?: string | null
-          match_status?: Database["public"]["Enums"]["match_status_enum"] | null
-          result_computed?: string | null
-          season?: string | null
-          total_goals_computed?: number | null
-        }
-        Update: {
-          attendance?: number | null
-          away_team?: string | null
-          btts_computed?: boolean | null
-          comeback_computed?: boolean | null
-          full_time_away_goals?: number | null
-          full_time_home_goals?: number | null
-          home_team?: string | null
-          id?: number | null
-          league?: string | null
-          match_at?: string | null
-          match_status?: Database["public"]["Enums"]["match_status_enum"] | null
-          result_computed?: string | null
-          season?: string | null
-          total_goals_computed?: number | null
-        }
-        Relationships: []
-      }
       materialized_view_monitoring: {
         Row: {
           hasindexes: boolean | null
@@ -1068,19 +858,6 @@ export type Database = {
         }
         Relationships: []
       }
-      team_statistics: {
-        Row: {
-          team: string | null
-          total_draws: number | null
-          total_goals_conceded: number | null
-          total_goals_scored: number | null
-          total_losses: number | null
-          total_matches: number | null
-          total_points: number | null
-          total_wins: number | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       calculate_all_features_batch: {
@@ -1131,14 +908,6 @@ export type Database = {
         Args: { num_matches?: number; team_name: string }
         Returns: number
       }
-      check_data_integrity: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          check_name: string
-          details: string
-          status: string
-        }[]
-      }
       check_database_health: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1146,10 +915,6 @@ export type Database = {
       cleanup_expired_predictions: {
         Args: Record<PropertyKey, never>
         Returns: number
-      }
-      cleanup_old_audit_records: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       cleanup_old_predictions: {
         Args: Record<PropertyKey, never>
@@ -1216,19 +981,6 @@ export type Database = {
           h2h_team1_wins: number
           h2h_team2_win_rate: number
           h2h_team2_wins: number
-        }[]
-      }
-      get_league_statistics: {
-        Args: { league_name: string; season_name?: string }
-        Returns: {
-          avg_goals_per_match: number
-          away_win_percentage: number
-          btts_percentage: number
-          comeback_percentage: number
-          draw_percentage: number
-          home_win_percentage: number
-          total_goals: number
-          total_matches: number
         }[]
       }
       get_legend_mode_comeback_breakdown: {
@@ -1374,29 +1126,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      refresh_statistics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      reindex_matches_table: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       safe_round: {
         Args: { p_precision?: number; p_value: number }
         Returns: number
-      }
-      search_matches: {
-        Args: { search_term: string }
-        Returns: {
-          away_team: string
-          home_team: string
-          id: number
-          league: string
-          match_at: string
-          result_computed: string
-          season: string
-        }[]
       }
       set_limit: {
         Args: { "": number }
