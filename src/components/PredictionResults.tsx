@@ -46,10 +46,30 @@ export const PredictionResults = ({ predictions }: PredictionResultsProps) => {
       </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        {predictions.map(({ match, stats }, index) => (
-          <section key={index} className="relative bg-black/60 w-full max-w-md border-white/10 border rounded-3xl shadow-2xl backdrop-blur-xl">
+        {predictions.map(({ match, stats }, index) => {
+          const isTopThree = index < 3;
+          return (
+          <section key={index} className={`relative w-full max-w-md border rounded-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 ${
+            isTopThree 
+              ? 'bg-gradient-to-br from-primary/20 to-primary/10 border-primary/40 ring-2 ring-primary/30 shadow-primary/20' 
+              : 'bg-black/60 border-white/10'
+          }`}>
             {/* Top border glow */}
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${
+              isTopThree 
+                ? 'from-transparent via-primary/60 to-transparent' 
+                : 'from-transparent via-white/20 to-transparent'
+            }`}></div>
+            
+            {/* Top 3 indicator */}
+            {isTopThree && (
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                <div className="flex items-center gap-1 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
+                  <Target className="w-3 h-3" />
+                  TOP {index + 1}
+                </div>
+              </div>
+            )}
 
             <div className="relative sm:p-6 pt-5 pr-5 pb-5 pl-5">
               {/* Teams */}
@@ -190,7 +210,8 @@ export const PredictionResults = ({ predictions }: PredictionResultsProps) => {
               )}
             </div>
           </section>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
