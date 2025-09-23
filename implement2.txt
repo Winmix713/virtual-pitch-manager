@@ -1,0 +1,210 @@
+---
+
+## **1. – Accessible & Customizable LoadingOverlay Component**
+
+**Task:**
+Create a fully accessible, customizable, and well-documented **LoadingOverlay** React component using **TypeScript**, meeting the following requirements:
+
+### **1. Accessibility (ARIA Implementation)**
+
+* Add **ARIA attributes** to spinner and overlay (`role="progressbar"`, `aria-label`, `aria-live`).
+* Ensure **screen reader compatibility** using `aria-live` regions.
+* Use `role="alert"` or `role="status"` appropriately to notify screen readers.
+
+### **2. Customizability**
+
+* **Colors:** Spinner and overlay background (via `color`, `backgroundColor`).
+* **Sizes:** Small, medium, large, or custom numeric size (`size` prop).
+* **Text (i18n):** Customizable loading text (`loadingText`) with localization support.
+* **Animation Speed:** Adjustable (`animationSpeed` prop).
+* **Opacity:** Configurable overlay opacity (`opacity` prop).
+
+### **3. TypeScript Strictness**
+
+* Define strict **TypeScript interfaces** for all props (`LoadingOverlayProps`).
+* Implement **type guards** for validating input props.
+* Ensure **full type safety** across all customization options.
+
+### **4. Component Logic**
+
+* Return `null` when `isLoading` is `false`.
+* Handle **errors and edge cases** (with fallback UI).
+* Optimize performance using **React.memo** / **useMemo**.
+
+### **5. Unit Tests (Jest + RTL)**
+
+* Test **accessibility** (using `axe` or `jest-axe`).
+* Cover all prop combinations and edge cases.
+* Add **snapshot tests** for visual regression.
+* Validate **keyboard navigation & screen reader compatibility**.
+
+### **6. Documentation**
+
+* Provide detailed **JSDoc** for all props (with examples).
+* Include **usage examples** for different scenarios (`isLoading={true}`).
+* Document **ARIA compliance** (WCAG 2.1 AA).
+* Add **migration guide** if relevant.
+* Provide **Storybook stories** for visual documentation.
+
+**Mandatory File:**
+
+* `loading-overlay.tsx`
+
+**Example prop interface:**
+
+```tsx
+export interface LoadingOverlayProps {
+  isLoading: boolean;
+  size?: 'small' | 'medium' | 'large' | number;
+  color?: string;
+  backgroundColor?: string;
+  loadingText?: string;
+  animationSpeed?: number;
+  opacity?: number;
+}
+```
+
+✅ Must meet **WCAG 2.1 AA**
+✅ Strict **TypeScript validation**
+✅ 100% test coverage
+✅ Clear **documentation with examples**
+
+---
+
+## **2. – Accessible & Customizable MobileNav Component**
+
+**Task:**
+Create an accessible, customizable, and fully documented **MobileNav** React component in **TypeScript**, following the requirements below:
+
+### **1. Component Implementation**
+
+* File: `mobile-nav.tsx` (TypeScript with strict typing).
+* Add **ARIA attributes** for links (`role="link"`, `aria-label`) and icons (`aria-hidden="true"` or `aria-label` for functional icons).
+* Support **dynamic nav items** via a `navItems` prop (labels, icons, links).
+
+### **2. Customizability**
+
+* **Colors:** Background, text, active state (`backgroundColor`, `color`, `activeColor`).
+* **Sizes:** Small, medium, large, or custom (`size` prop).
+* **Labels:** Custom text labels for nav items (`label` prop).
+* **Icons:** Customizable type, size, and color (`iconType`, `iconSize`, `iconColor`).
+
+### **3. TypeScript Strictness**
+
+* Use a strict `MobileNavProps` interface for all props.
+* Validate props with **TypeScript’s type system**.
+* Provide **JSDoc documentation** for all props and methods.
+
+### **4. Testing (Jest + RTL)**
+
+* Test **accessibility** (ARIA attributes, keyboard navigation).
+* Cover all customization options and edge cases.
+* Implement **error handling** and fallback states.
+* Ensure at least **90% code coverage**.
+
+### **5. Documentation**
+
+* Full **prop documentation** (name, type, default, description).
+* Usage examples for each prop.
+* Accessibility guidelines.
+* Customization examples with code snippets.
+* A `README.md` including:
+
+  * Installation & usage guide
+  * Examples with different configurations
+
+### **Mandatory Files**
+
+1. `mobile-nav.tsx` – main component
+2. `mobile-nav.types.ts` – TypeScript types
+3. `mobile-nav.test.tsx` – unit tests
+4. `mobile-nav.stories.tsx` – Storybook stories (recommended)
+5. `README.md` – documentation
+
+### **Technical Constraints**
+
+* React 18+ & TypeScript 4.5+
+* WCAG 2.1 AA compliance
+* Mobile-first responsive design
+* Support **controlled & uncontrolled** component patterns
+* Implement **error boundaries & fallback states**
+
+✅ ARIA attributes for all dynamic elements
+✅ Full customization (color, size, text)
+✅ Unit tests for all props & edge cases
+✅ Clear documentation with examples
+✅ Strict TypeScript validation
+
+---
+
+## **3. – Fully Accessible & Customizable Table Component**
+
+**Task:**
+Refactor an existing **Table** React component to achieve a **10/10 score** with special focus on **Accessibility, Customization, Type Safety, Testing, and Mobile Responsiveness**.
+
+### **1. Accessibility (WCAG 2.1 AA)**
+
+* Add **ARIA attributes**:
+
+  * Column headers: `role="columnheader"`, `aria-label`, `aria-sort` for sortable columns.
+  * Interactive buttons: `aria-pressed`, `aria-expanded`, `aria-describedby`.
+* **Keyboard navigation**:
+
+  * Support Tab, Enter, Space, and arrow keys (sorting, expanding, etc.).
+* **Screen reader notifications**:
+
+  * Use `aria-live` regions for dynamic updates (e.g., “3 rows loaded”).
+
+### **2. Customizability**
+
+* **Theme customization**: Colors, fonts, spacing (`theme` prop).
+* **Size variants**: Small, medium, large (`size` prop).
+* **Custom texts**: Labels, messages (`labels` prop).
+* **CSS customization**: `className` & `style` props.
+
+### **3. Error Handling & TypeScript**
+
+* Strict `TableProps` interface with clear `required` & `optional` fields.
+* Prop validation via **TypeScript & type guards**.
+* Implement **ErrorBoundary** for error handling.
+* Support **loading** & **error** states as props.
+
+### **4. Testing (Jest + RTL)**
+
+* Unit tests for:
+
+  * Sorting
+  * Expansion
+  * Keyboard navigation
+* Accessibility tests using **jest-axe** or **axe-core**.
+* Ensure **>90% code coverage**.
+* Test edge cases: empty tables, error states, mobile view.
+
+### **5. Mobile Compatibility**
+
+* Responsive design with **horizontal scrolling** or mobile table patterns.
+* Support **touch interactions** (swipe, tap).
+* Use **mobile-first media queries** in styling.
+
+### **Mandatory Files**
+
+1. `table.tsx` – main component
+2. `table.types.ts` – TypeScript types
+3. `table.test.tsx` – unit tests
+4. `table.stories.tsx` – Storybook examples
+5. `README.md` – documentation
+
+### **Technical Requirements**
+
+* React 18+ & TypeScript 4.5+
+* WCAG 2.1 AA compliance
+* Strict code quality (ESLint, Prettier)
+* Support **controlled & uncontrolled** component patterns
+
+✅ ARIA attributes on all interactive elements
+✅ Full customization (theme, size, text)
+✅ Unit tests for all functionality & errors
+✅ Mobile compatibility with touch & scroll
+✅ Clear documentation with prop definitions & examples
+
+---
