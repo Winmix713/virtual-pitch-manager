@@ -14,9 +14,13 @@ interface MatchSelectorProps {
   teams: string[];
   onUpdateMatch: (matchId: number, side: 'home' | 'away', team: string) => void;
   onClearMatch: (matchId: number) => void;
+  onClearAllMatches?: () => void;
+  onRunPredictions?: () => void;
+  loading?: boolean;
+  validMatchCount?: number;
 }
 
-export const MatchSelector = ({ matches, teams, onUpdateMatch, onClearMatch }: MatchSelectorProps) => {
+export const MatchSelector = ({ matches, teams, onUpdateMatch, onClearMatch, onClearAllMatches, onRunPredictions, loading = false, validMatchCount = 0 }: MatchSelectorProps) => {
   const getUsedTeams = () => {
     const used = new Set<string>();
     matches.forEach(match => {
@@ -126,6 +130,61 @@ export const MatchSelector = ({ matches, teams, onUpdateMatch, onClearMatch }: M
           </Card>
         ))}
       </div>
+      
+      {/* Action buttons section */}
+      {(onClearAllMatches || onRunPredictions) && (
+        <div className="sticky bottom-0 bg-background/80 backdrop-blur-sm p-4 rounded-lg border border-white/10 mx-auto max-w-md mt-6">
+          <div className="text-center space-y-3">
+            {validMatchCount > 0 && (
+              <div className="text-sm text-white/80">
+                <span className="font-medium text-primary">{validMatchCount}</span> mérkőzés kiválasztva
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              {onClearAllMatches && validMatchCount > 0 && (
+                <Button
+                  onClick={onClearAllMatches}
+                  variant="outline"
+                  className="flex-1 winmix-btn-glass"
+                  disabled={loading}
+                >
+                  Összes törlése
+                </Button>
+              )}
+              
+              {onRunPredictions && (
+                <Button
+                  onClick={onRunPredictions}
+                  disabled={validMatchCount === 0 || loading}
+                  className="flex-1 winmix-btn-primary winmix-hover-lift winmix-focus text-base sm:text-lg py-3 sm:py-4 h-auto touch-manipulation"
+                  size="lg"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Elemzés...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m6-1V8a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2z" />
+                      </svg>
+                      Futtatás
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            
+            {validMatchCount === 0 && onRunPredictions && (
+              <p className="text-xs text-white/60">
+                Válassz ki legalább egy mérkőzést az elemzéshez
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

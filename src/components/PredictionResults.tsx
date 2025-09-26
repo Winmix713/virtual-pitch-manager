@@ -1,5 +1,6 @@
-
+import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle, TrendingUp, Target, BarChart3 } from "lucide-react";
+import { memo, useMemo } from "react";
 import type { MatchStats } from "@/lib/supabase";
 
 // Add the extended type definition for prediction quality
@@ -25,7 +26,56 @@ interface PredictionResultsProps {
   predictions: { match: PredictedMatch; stats: ExtendedMatchStats | null }[];
 }
 
-export const PredictionResults = ({ predictions }: PredictionResultsProps) => {
+// Constants for better maintainability
+const CONFIDENCE_THRESHOLDS = {
+  HIGH: 65,
+  MEDIUM: 50
+} as const;
+
+// Helper functions
+const getConfidenceIcon = (level: number) => {
+  if (level >= CONFIDENCE_THRESHOLDS.HIGH) return CheckCircle;
+  if (level >= CONFIDENCE_THRESHOLDS.MEDIUM) return AlertTriangle;
+  return AlertTriangle;
+};
+
+const getConfidenceIconColor = (level: number) => {
+  if (level >= CONFIDENCE_THRESHOLDS.HIGH) return "text-success";
+  if (level >= CONFIDENCE_THRESHOLDS.MEDIUM) return "text-warning";
+  return "text-destructive";
+};
+
+const safeRound = (value: number | undefined | null): number => {
+  return Math.round(value ?? 0);
+};
+
+export const PredictionResults = memo(({ predictions }: PredictionResultsProps) => {
+  // Memoize processed data to avoid recalculation on each render
+  const processedPredictions = useMemo(() => {
+    return predictions.map(({ match, stats }, index) => {
+      const confidenceLevel = stats?.prediction_quality?.confidence_level ?? 0;
+      const ConfidenceIcon = getConfidenceIcon(confidenceLevel);
+      const confidenceIconColor = getConfidenceIconColor(confidenceLevel);
+      const roundedConfidence = safeRound(confidenceLevel);
+      
+      // Highlight first 3 predictions
+      const isTopPrediction = index < 3;
+      
+      return {
+        match,
+        stats,
+        hasValidStats: stats !== null,
+        confidenceLevel,
+        ConfidenceIcon,
+        confidenceIconColor,
+        roundedConfidence,
+        isTopPrediction,
+        // Generate unique key for this prediction
+        uniqueKey: `${match.id}-${match.home_team}-${match.away_team}`
+      };
+    });
+  }, [predictions]);
+
   if (predictions.length === 0) return null;
 
   return (
@@ -34,185 +84,190 @@ export const PredictionResults = ({ predictions }: PredictionResultsProps) => {
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-2 mb-3">
           <BarChart3 className="w-5 h-5 text-primary" />
-          <h3 className="text-lg sm:text-xl font-semibold text-white">Optimalizált predikciós eredmények</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white">Predikciós eredmények</h3>
         </div>
         
-        <div className="inline-flex flex-wrap items-center gap-2 text-xs bg-white/5 px-3 py-2 rounded-full border border-white/10">
-          <span className="text-white/80">Kritériumok:</span>
-          <span className="text-success">≥65% győzelem</span>
-          <span className="text-warning">&gt;30% döntetlen</span>
-          <span className="text-primary">≥55% BTTS</span>
+        <div className="text-sm text-white/70 mb-4">
+          Elemzés a kiválasztott csapatok egymás elleni mérkőzései alapján
         </div>
       </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-        {predictions.map(({ match, stats }, index) => {
-          const isTopThree = index < 3;
+        {processedPredictions.map((prediction) => {
+          const { match, stats, hasValidStats, ConfidenceIcon, confidenceIconColor, roundedConfidence, isTopPrediction, uniqueKey } = prediction;
+          
           return (
-          <section key={index} className={`relative w-full max-w-md border rounded-3xl shadow-2xl backdrop-blur-xl transition-all duration-300 ${
-            isTopThree 
-              ? 'bg-gradient-to-br from-primary/20 to-primary/10 border-primary/40 ring-2 ring-primary/30 shadow-primary/20' 
-              : 'bg-black/60 border-white/10'
-          }`}>
-            {/* Top border glow */}
-            <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${
-              isTopThree 
-                ? 'from-transparent via-primary/60 to-transparent' 
-                : 'from-transparent via-white/20 to-transparent'
-            }`}></div>
-            
-            {/* Top 3 indicator */}
-            {isTopThree && (
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                <div className="flex items-center gap-1 bg-primary text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
-                  <Target className="w-3 h-3" />
-                  TOP {index + 1}
-                </div>
-              </div>
-            )}
-
-            <div className="relative sm:p-6 pt-5 pr-5 pb-5 pl-5">
-              {/* Teams */}
-              <div className="grid grid-cols-3 gap-2 mb-3 items-center">
-                {/* Home Team */}
-                <div className="flex flex-col items-center">
-                  <div className="relative">
-                    <div className="grid h-12 w-12 place-items-center rounded-full ring-2 ring-white/10 shadow-inner shadow-black/30" style={{background: 'radial-gradient(100% 100% at 50% 50%, #3b82f6 0%, #1e40af 100%)'}}>
-                      <span className="text-base font-semibold tracking-tight text-white/95">
-                        {match.home_team.charAt(0)}
-                      </span>
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10"></div>
-                  </div>
-                  <p className="mt-2 text-[13px] font-semibold tracking-tight">{match.home_team}</p>
-                  <p className="text-[11px] font-medium text-white/50">Hazai</p>
-                </div>
-
-                {/* VS / H2H */}
-                <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-white/50">H2H mérkőzés</span>
-                  <div className="mt-1 text-2xl font-semibold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-emerald-400 to-emerald-600">
-                    {stats?.total_matches || 0}
-                  </div>
-                  <div className="mt-2 h-5 w-px bg-white/10"></div>
-                  <span className="sr-only">Összes egymás elleni</span>
-                </div>
-
-                {/* Away Team */}
-                <div className="flex flex-col items-center">
-                  <div className="relative">
-                    <div className="grid h-12 w-12 place-items-center rounded-full ring-2 ring-white/10 shadow-inner shadow-black/30" style={{background: 'radial-gradient(100% 100% at 50% 50%, #ef4444 0%, #dc2626 100%)'}}>
-                      <span className="text-base font-semibold tracking-tight text-white/95">
-                        {match.away_team.charAt(0)}
-                      </span>
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/10"></div>
-                  </div>
-                  <p className="mt-2 text-[13px] font-semibold tracking-tight">{match.away_team}</p>
-                  <p className="text-[11px] font-medium text-white/50">Vendég</p>
-                </div>
-              </div>
-
-              <div className="h-px bg-white/10 w-full my-2"></div>
-
-              {/* H2H summary */}
-              <div className="bg-white/5 border-white/10 border rounded-2xl mt-3 pt-4 pr-4 pb-4 pl-4">
-                <h2 className="mb-3 text-center text-base font-semibold tracking-tight">Egymás elleni mérleg</h2>
-                <div className="grid grid-cols-3 items-center gap-2">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-                    <div className="text-xl font-semibold tracking-tight text-blue-400">{stats?.home_wins || 0}</div>
-                    <div className="mt-0.5 text-xs font-medium text-white/60">{match.home_team} győzelem</div>
-                  </div>
-                  <div className="p-2 text-center">
-                    <div className="text-lg font-semibold tracking-tight text-amber-400">{stats?.draws || 0}</div>
-                    <div className="mt-0.5 text-[11px] font-medium uppercase text-white/60">Döntetlen</div>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center">
-                    <div className="text-xl font-semibold tracking-tight text-rose-400">{stats?.away_wins || 0}</div>
-                    <div className="mt-0.5 text-xs font-medium text-white/60">{match.away_team} győzelem</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Detailed percentages */}
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 mt-3">
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition-colors hover:bg-white/[0.07]">
-                  <div className="text-lg font-semibold tracking-tight text-emerald-400">{stats?.home_win_percentage || 0}%</div>
-                  <div className="mt-1 text-xs font-medium text-white/70">{match.home_team} győzelmi arány</div>
-                </div>
-                <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-center transition-colors hover:bg-white/[0.07]">
-                  <div className="text-lg font-semibold tracking-tight text-emerald-400">{stats?.away_win_percentage || 0}%</div>
-                  <div className="mt-1 text-xs font-medium text-white/70">{match.away_team} győzelmi arány</div>
-                </div>
-              </div>
-
-              {/* Goals analysis */}
-              <div className="bg-emerald-500/5 border-emerald-500/20 border rounded-2xl mt-3 pt-4 pr-4 pb-4 pl-4">
-                <h3 className="mb-3 text-center text-[13px] font-semibold uppercase tracking-wide text-emerald-300">Gól statisztikák</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-lg border border-white/10 bg-white/5 p-2 text-center">
-                    <div className="text-base font-semibold tracking-tight">{stats?.home_avg_goals || '0.0'}</div>
-                    <div className="mt-0.5 text-[11px] font-medium text-white/60">{match.home_team} átlag</div>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-white/5 p-2 text-center">
-                    <div className="text-base font-semibold tracking-tight">{stats?.avg_goals || '0.0'}</div>
-                    <div className="mt-0.5 text-[11px] font-medium text-white/60">Meccs átlag</div>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-white/5 p-2 text-center">
-                    <div className="text-base font-semibold tracking-tight">{stats?.away_avg_goals || '0.0'}</div>
-                    <div className="mt-0.5 text-[11px] font-medium text-white/60">{match.away_team} átlag</div>
-                  </div>
-                </div>
-
-                {/* BTTS */}
-                <div className="mt-4 rounded-xl border border-violet-500/25 bg-violet-500/10 p-3 text-center">
-                  <div className="mb-1 inline-flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-violet-300">
-                      <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path>
-                    </svg>
-                    <span className="text-[12px] font-semibold uppercase tracking-wide text-violet-200">Mindkét csapat szerez</span>
-                  </div>
-                  <div className="text-xl font-semibold tracking-tight">{stats?.btts_percentage || 0}%</div>
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/15">
-                    <div 
-                      className="h-full rounded-full bg-gradient-to-r from-violet-400 to-violet-300" 
-                      style={{width: `${stats?.btts_percentage || 0}%`}}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Common scores */}
-              {stats?.most_frequent_results && stats.most_frequent_results.length > 0 && (
-                <div className="bg-white/5 border-white/10 border rounded-2xl mt-3 pt-4 pr-4 pb-4 pl-4">
-                  <h4 className="mb-3 text-center text-[13px] font-semibold uppercase tracking-wide">Leggyakoribb eredmények</h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {stats.most_frequent_results.slice(0, 3).map((result, idx) => (
-                      <button 
-                        key={idx} 
-                        className="group rounded-lg border border-white/10 bg-white/5 p-2 text-center outline-none transition-all hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-lg hover:shadow-black/30 focus-visible:ring-2 focus-visible:ring-emerald-400/30"
-                      >
-                        <div className="text-[15px] font-semibold tracking-tight">{result.score}</div>
-                        <div className="mt-0.5 text-xs font-medium text-emerald-400">{result.percentage}%</div>
-                      </button>
-                    ))}
-                  </div>
+            <Card 
+              key={uniqueKey} 
+              className={`glass-card border-white/10 hover:border-white/20 transition-all duration-300 group relative ${
+                isTopPrediction ? 'ring-2 ring-gold/50 border-gold/30 bg-gradient-to-br from-gold/5 to-amber-500/5' : ''
+              }`}
+            >
+              {isTopPrediction && (
+                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-gold to-amber-500 text-black text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                  TOP
                 </div>
               )}
-
-              {!stats && (
-                <div className="text-center py-6 sm:py-8">
-                  <AlertTriangle className="w-8 h-8 text-warning mx-auto mb-3" />
-                  <p className="text-white/70 text-sm">
-                    Nincs elegendő adat az elemzéshez
-                  </p>
+              <CardContent className="p-4 sm:p-6">
+                {/* Match header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
+                  <div className="min-w-0 flex-1">
+                    <h4 className={`font-semibold text-base sm:text-lg truncate ${
+                      isTopPrediction ? 'text-gold' : 'text-white'
+                    }`}>
+                      {match.home_team}
+                    </h4>
+                    <div className="text-white/60 text-sm font-medium">VS</div>
+                    <h4 className={`font-semibold text-base sm:text-lg truncate ${
+                      isTopPrediction ? 'text-gold' : 'text-white'
+                    }`}>
+                      {match.away_team}
+                    </h4>
+                  </div>
+                  
+                  {stats?.prediction_quality && (
+                    <div className="flex items-center gap-2 self-start sm:self-center">
+                      <ConfidenceIcon className={`w-5 h-5 ${confidenceIconColor} flex-shrink-0`} />
+                      <span className={`text-sm font-medium ${
+                        isTopPrediction ? 'text-gold' : 'text-white/90'
+                      }`}>
+                        {roundedConfidence}%
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </section>
+                
+                {hasValidStats && stats ? (
+                  <div className="space-y-4">
+                    {/* 1x2 Results Section */}
+                    <div className={`p-4 rounded-lg border ${
+                      isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                    }`}>
+                      <h5 className={`text-sm font-semibold mb-3 ${
+                        isTopPrediction ? 'text-gold' : 'text-white'
+                      }`}>
+                        1x2 Eredmények ({stats.total_matches ?? 0} közös mérkőzésből)
+                      </h5>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center">
+                          <div className={`text-lg font-bold ${
+                            isTopPrediction ? 'text-gold' : 'text-white'
+                          }`}>{stats.home_wins ?? 0}</div>
+                          <div className="text-xs text-white/70">Hazai győzelem</div>
+                          <div className="text-sm text-emerald-400 font-medium">{stats.home_win_percentage ?? 0}%</div>
+                        </div>
+                        <div className="text-center">
+                          <div className={`text-lg font-bold ${
+                            isTopPrediction ? 'text-gold' : 'text-white'
+                          }`}>{stats.draws ?? 0}</div>
+                          <div className="text-xs text-white/70">Döntetlen</div>
+                          <div className="text-sm text-yellow-400 font-medium">{stats.draw_percentage ?? 0}%</div>
+                        </div>
+                        <div className="text-center">
+                          <div className={`text-lg font-bold ${
+                            isTopPrediction ? 'text-gold' : 'text-white'
+                          }`}>{stats.away_wins ?? 0}</div>
+                          <div className="text-xs text-white/70">Vendég győzelem</div>
+                          <div className="text-sm text-blue-400 font-medium">{stats.away_win_percentage ?? 0}%</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Goal Averages */}
+                    <div className={`p-4 rounded-lg border ${
+                      isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                    }`}>
+                      <h5 className={`text-sm font-semibold mb-3 ${
+                        isTopPrediction ? 'text-gold' : 'text-white'
+                      }`}>Gól átlagok (közös mérkőzések)</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-emerald-400">{stats.home_avg_goals ?? 0}</div>
+                          <div className="text-xs text-white/70">{match.home_team} átlaga</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xl font-bold text-blue-400">{stats.away_avg_goals ?? 0}</div>
+                          <div className="text-xs text-white/70">{match.away_team} átlaga</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-center">
+                        <div className={`text-lg font-bold ${
+                          isTopPrediction ? 'text-gold' : 'text-white'
+                        }`}>{stats.avg_goals ?? 0}</div>
+                        <div className="text-xs text-white/70">Összes gól átlaga mérkőzésenként</div>
+                      </div>
+                    </div>
+
+                    {/* BTTS and Comeback Statistics */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className={`p-3 rounded border text-center ${
+                        isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                      }`}>
+                        <div className="text-lg font-bold text-purple-400">{stats.btts_count ?? 0}</div>
+                        <div className="text-xs text-white/70 mb-1">BTTS mérkőzés</div>
+                        <div className="text-sm text-purple-400 font-medium">{stats.btts_percentage ?? 0}%</div>
+                      </div>
+                      <div className={`p-3 rounded border text-center ${
+                        isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                      }`}>
+                        <div className="text-lg font-bold text-orange-400">{stats.comeback_count ?? 0}</div>
+                        <div className="text-xs text-white/70 mb-1">Fordítás</div>
+                        <div className="text-sm text-orange-400 font-medium">{stats.comeback_percentage ?? 0}%</div>
+                      </div>
+                    </div>
+
+                    {/* Top 3 Most Frequent Results */}
+                    {stats.most_frequent_results && stats.most_frequent_results.length > 0 && (
+                      <div className={`p-4 rounded-lg border ${
+                        isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                      }`}>
+                        <h5 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${
+                          isTopPrediction ? 'text-gold' : 'text-white'
+                        }`}>
+                          <TrendingUp className="w-4 h-4" />
+                          Leggyakoribb 3 eredmény
+                        </h5>
+                        <div className="grid grid-cols-3 gap-2">
+                          {stats.most_frequent_results.slice(0, 3).map((result, idx) => (
+                            <div key={`${uniqueKey}-result-${idx}`} className={`p-3 rounded text-center border ${
+                              isTopPrediction ? 'bg-gold/10 border-gold/30' : 'bg-white/10 border-white/20'
+                            }`}>
+                              <div className={`text-lg font-bold mb-1 ${
+                                isTopPrediction ? 'text-gold' : 'text-white'
+                              }`}>{result.score ?? 'N/A'}</div>
+                              <div className="text-xs text-white/70">{result.count ?? 0}x ({result.percentage ?? 0}%)</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Additional Stats */}
+                    <div className={`p-3 rounded border ${
+                      isTopPrediction ? 'bg-gold/5 border-gold/20' : 'bg-white/5 border-white/10'
+                    }`}>
+                      <div className="text-sm text-white/80 text-center">
+                        <span className="font-medium">Félidő/végeredmény eltérés:</span> {stats.halftime_transformations ?? 0} mérkőzés
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6 sm:py-8">
+                    <AlertTriangle className="w-8 h-8 text-warning mx-auto mb-3" />
+                    <p className="text-white/70 text-sm">
+                      Nincs elegendő adat az elemzéshez
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           );
         })}
       </div>
     </div>
   );
-};
+});
+
+PredictionResults.displayName = 'PredictionResults';
+
+export default PredictionResults;
